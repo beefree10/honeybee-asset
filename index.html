@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐝 HoneyBee Asset v2</title>
+<title>🐝 HoneyBee Asset v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -259,9 +259,41 @@ body.edit-mode .fx-val{border:1px solid var(--edit-border);color:var(--gold)}
 
 /* ── TOAST ── */
 #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--surface2);color:var(--text);padding:8px 16px;border-radius:20px;font-size:12px;display:none;z-index:500;border:1px solid var(--border2)}
+
+/* ===== LOGIN OVERLAY ===== */
+#login-overlay{position:fixed;inset:0;background:#0a0c10;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+#login-overlay.hidden{display:none;}
+.login-box{background:#1a1f28;border:1px solid rgba(240,180,41,0.3);border-radius:20px;padding:48px 40px;width:340px;text-align:center;box-shadow:0 0 60px rgba(240,180,41,0.08);}
+.login-logo{font-size:48px;margin-bottom:8px;}
+.login-title{font-size:22px;font-weight:700;color:#e8eaf0;margin-bottom:4px;}
+.login-sub{font-size:13px;color:#555e72;margin-bottom:32px;}
+.login-input-wrap{position:relative;margin-bottom:16px;}
+.login-input{width:100%;padding:14px 18px;background:#0f1218;border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;color:#e8eaf0;font-size:15px;outline:none;transition:.2s;box-sizing:border-box;letter-spacing:2px;}
+.login-input:focus{border-color:rgba(240,180,41,0.5);box-shadow:0 0 0 3px rgba(240,180,41,0.08);}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#f0b429,#ffd666);border:none;border-radius:12px;color:#0a0c10;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.5px;}
+.login-btn:hover{opacity:.9;transform:translateY(-1px);}
+.login-btn:active{transform:translateY(0);}
+.login-error{color:#ff5252;font-size:13px;margin-top:12px;min-height:18px;transition:.2s;}
+.login-attempts{color:#555e72;font-size:11px;margin-top:8px;}
+
 </style>
 </head>
 <body>
+
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">🐝</div>
+    <div class="login-title">HoneyBee Asset</div>
+    <div class="login-sub">개인 자산 관리 대시보드 · 허니비</div>
+    <div class="login-input-wrap">
+      <input class="login-input" id="login-pw" type="password" placeholder="비밀번호 입력" autocomplete="off" />
+    </div>
+    <button class="login-btn" id="login-btn" onclick="checkLogin()">로그인</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-attempts" id="login-attempts"></div>
+  </div>
+</div>
+
 
 <!-- STATUS BAR -->
 <div class="status-bar">
@@ -1576,5 +1608,40 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAll();
 });
 </script>
+
+<script>
+(function(){
+  // Check session
+  if(sessionStorage.getItem('hb_auth')==='ok'){
+    document.getElementById('login-overlay').classList.add('hidden');
+  }
+  document.getElementById('login-pw').addEventListener('keydown',function(e){
+    if(e.key==='Enter') checkLogin();
+  });
+})();
+
+let _attempts = 0;
+async function checkLogin(){
+  const pw = document.getElementById('login-pw').value;
+  const err = document.getElementById('login-error');
+  const attEl = document.getElementById('login-attempts');
+  if(!pw){ err.textContent='비밀번호를 입력해주세요.'; return; }
+  
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  const hash = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  
+  if(hash === '21b79198ed4583ab2a70ccde81b20aa43c8b28201b2262636d306d3bb87958c7'){
+    sessionStorage.setItem('hb_auth','ok');
+    document.getElementById('login-overlay').classList.add('hidden');
+  } else {
+    _attempts++;
+    document.getElementById('login-pw').value='';
+    document.getElementById('login-pw').focus();
+    err.textContent='비밀번호가 틀렸습니다.';
+    if(_attempts>=3) attEl.textContent=`시도 ${_attempts}회 — 잠시 후 다시 시도해주세요.`;
+  }
+}
+</script>
+
 </body>
 </html>
