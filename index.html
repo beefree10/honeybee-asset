@@ -215,8 +215,9 @@ svg{display:block;width:100%;height:auto}
 //  HoneyBee Asset v4 — 일일기록(구글시트) 단일 소스
 // ════════════════════════════════════════════
 const SHEET_ID = '1WBckcvvM6Lwb-i6d_mpxEXZkxkWLXe6f';
-const DAILY_GID = '1856518065';      // 일일기록 탭
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit#gid=${DAILY_GID}`;
+const DAILY_SHEET = '일일기록';      // 일일기록 탭 (gid 대신 시트명으로 조회 — 더 안정적)
+const DAILY_GID = '1856518065';      // (참고용 · gid는 대시보드를 가리켜 사용하지 않음)
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
 const GOAL = 7500;                    // 시트 '목표수익 7500'
 const PW_HASH = '21b79198ed4583ab2a70ccde81b20aa43c8b28201b2262636d306d3bb87958c7';
 
@@ -350,7 +351,7 @@ function num(v){ if(v==null)return null; const s=String(v).replace(/[^0-9.\-]/g,
 
 // ── 라이브 fetch ──
 async function fetchDaily(){
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${DAILY_GID}&t=${Date.now()}`;
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(DAILY_SHEET)}&t=${Date.now()}`;
   const res=await fetch(url,{cache:'no-store'});
   if(!res.ok) throw new Error('http '+res.status);
   const rows=parseCSV(await res.text());
