@@ -128,7 +128,7 @@ svg{display:block;width:100%;height:auto}
     <div class="section-label">총잔고 추이 (2026)</div>
     <div class="spark-card"><div class="spark-head"><span class="t">시작 → 현재</span><span class="v gold" id="spark-now">—</span></div><div id="spark-total"></div></div>
     <div class="section-label">누적수익 추이</div>
-    <div class="spark-card"><div class="spark-head"><span class="t">목표 0만</span><span class="v pos" id="spark-ytd-now">—</span></div><div id="spark-ytd"></div></div>
+    <div class="spark-card"><div class="spark-head"><span class="t" id="spark-goal">목표 0만</span><span class="v pos" id="spark-ytd-now">—</span></div><div id="spark-ytd"></div></div>
   </div>
 
   <!-- ALLOC / TARGET -->
@@ -192,7 +192,7 @@ svg{display:block;width:100%;height:auto}
 // ════════ HoneyBee Asset v5 — 구글시트 전체 탭 연동 ════════
 const SHEET_ID='1q8gMavK-vniGd7AlFUctX9Pi2paiZRNtqolY2FIgJTE';
 const SHEET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
-const GOAL=0;
+let GOAL=0; // 일일기록 H2에서 읽어 덮어씀 (연 목표수익, 만원)
 const PW_HASH='21b79198ed4583ab2a70ccde81b20aa43c8b28201b2262636d306d3bb87958c7';
 let FX={usd:1550.15,thb:46.64};
 
@@ -241,7 +241,9 @@ async function csv(sheet){const u=`https://docs.google.com/spreadsheets/d/${SHEE
 
 // ── 일일기록 ──
 async function fetchDaily(){
-  const rows=await csv('일일기록');const recs=[];
+  const rows=await csv('일일기록');
+  const g=num((rows[1]||[])[7]); if(g!=null)GOAL=g;   // 일일기록 H2 = 연 목표수익
+  const recs=[];
   for(const r of rows){
     const d=(r[0]||'').trim(),w=(r[1]||'').trim(),chgRaw=(r[2]||'').trim();
     if(d.includes('참고자료')||d.includes('무시')||d.includes('⬆️'))break;   // 옛 중복 데이터 차단
@@ -360,6 +362,8 @@ function renderHero(){
   document.getElementById('hero-pct').textContent=p.toFixed(1)+'%';
   document.getElementById('prog-text').textContent=f0(ytd)+' / '+GOAL.toLocaleString()+'만';
   document.getElementById('prog-fill').style.width=p+'%';
+  document.getElementById('hero-goal').textContent=f0(GOAL)+'만';
+  const sg=document.getElementById('spark-goal');if(sg)sg.textContent='목표 '+f0(GOAL)+'만';
   document.getElementById('fx-usd').textContent=FX.usd.toLocaleString();
   document.getElementById('fx-thb').textContent=Number(FX.thb).toFixed(2);
 }
