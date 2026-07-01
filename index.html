@@ -102,7 +102,7 @@ svg{display:block;width:100%;height:auto}
     <div class="hero-day" id="hero-day">—</div>
     <div class="hero-meta">
       <div class="hm"><div class="hm-l">2026 누적수익</div><div class="hm-v pos" id="hero-ytd">—</div></div>
-      <div class="hm"><div class="hm-l">연 목표</div><div class="hm-v gold" id="hero-goal">7,500만</div></div>
+      <div class="hm"><div class="hm-l">연 목표</div><div class="hm-v gold" id="hero-goal">0만</div></div>
       <div class="hm"><div class="hm-l">달성률</div><div class="hm-v gold" id="hero-pct">—</div></div>
     </div>
     <div class="prog-l"><span>연 목표 진행률</span><span id="prog-text">—</span></div>
@@ -128,7 +128,7 @@ svg{display:block;width:100%;height:auto}
     <div class="section-label">총잔고 추이 (2026)</div>
     <div class="spark-card"><div class="spark-head"><span class="t">시작 → 현재</span><span class="v gold" id="spark-now">—</span></div><div id="spark-total"></div></div>
     <div class="section-label">누적수익 추이</div>
-    <div class="spark-card"><div class="spark-head"><span class="t">목표 7,500만</span><span class="v pos" id="spark-ytd-now">—</span></div><div id="spark-ytd"></div></div>
+    <div class="spark-card"><div class="spark-head"><span class="t">목표 0만</span><span class="v pos" id="spark-ytd-now">—</span></div><div id="spark-ytd"></div></div>
   </div>
 
   <!-- ALLOC / TARGET -->
@@ -192,7 +192,7 @@ svg{display:block;width:100%;height:auto}
 // ════════ HoneyBee Asset v5 — 구글시트 전체 탭 연동 ════════
 const SHEET_ID='1q8gMavK-vniGd7AlFUctX9Pi2paiZRNtqolY2FIgJTE';
 const SHEET_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
-const GOAL=7500;
+const GOAL=0;
 const PW_HASH='21b79198ed4583ab2a70ccde81b20aa43c8b28201b2262636d306d3bb87958c7';
 let FX={usd:1550.15,thb:46.64};
 
@@ -356,7 +356,7 @@ function renderHero(){
   day.textContent=(L.chg>=0?'▲ ':'▼ ')+sign(L.chg)+f0(L.chg)+'만 (전일대비)';day.className='hero-day '+(L.chg>=0?'pos':'neg');
   const ytd=L.ytd!=null?L.ytd:(L.total-48349.7);
   document.getElementById('hero-ytd').textContent='+'+f0(ytd)+'만';
-  const p=Math.max(0,Math.min(ytd/GOAL*100,100));
+  const p=GOAL>0?Math.max(0,Math.min(ytd/GOAL*100,100)):0;
   document.getElementById('hero-pct').textContent=p.toFixed(1)+'%';
   document.getElementById('prog-text').textContent=f0(ytd)+' / '+GOAL.toLocaleString()+'만';
   document.getElementById('prog-fill').style.width=p+'%';
